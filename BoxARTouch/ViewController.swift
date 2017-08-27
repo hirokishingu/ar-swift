@@ -24,10 +24,38 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.showsStatistics = true
         
         // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        let scene = SCNScene()
+        
+        let box = SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0)
+        
+        let material = SCNMaterial()
+        material.name = "Color"
+        material.diffuse.contents = UIColor.red
+        
+        let node = SCNNode()
+        node.geometry = box
+        node.geometry?.materials = [material]
+        node.position = SCNVector3(0, 0.1, -0.5)
+        
+        scene.rootNode.addChildNode(node)
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapped))
+        self.sceneView.addGestureRecognizer(tapRecognizer)
         
         // Set the scene to the view
         sceneView.scene = scene
+    }
+    
+    @objc func tapped(recognizer: UIGestureRecognizer) {
+        let sceneView = recognizer.view as! SCNView
+        let touchLocation = recognizer.location(in: sceneView)
+        let hitResults = sceneView.hitTest(touchLocation, options: [:])
+        
+        if !hitResults.isEmpty {
+            let node = hitResults[0].node
+            let material = node.geometry?.material(named: "Color")
+            material?.diffuse.contents = UIColor.blue
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
